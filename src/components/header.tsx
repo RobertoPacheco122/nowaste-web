@@ -7,7 +7,7 @@ import { ItemsCart } from "./items-cart";
 export function Header() {
   return (
     <header className="bg-background border-b-1">
-      <div className="flex items-center justify-between px-4 py-3">
+      <div className="container m-auto flex items-center justify-between px-4 py-3">
         <div>
           <Link className="flex items-center" href="/">
             <Leaf className="h-6 w-6 text-green-600" />
