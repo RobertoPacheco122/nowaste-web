@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import "./globals.css";
 import { Toaster } from "sonner";
+
+import { ReactQueryProvider } from "@/providers/react-query-provider";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -15,8 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`antialiased`}>
-        <main>{children}</main>
-        <Toaster />
+        <ReactQueryProvider>
+          <main>{children}</main>
+          <Toaster />
+        </ReactQueryProvider>
       </body>
     </html>
   );
