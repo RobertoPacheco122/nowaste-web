@@ -3,6 +3,11 @@
 import React from "react";
 
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import {
   Eye,
   EyeOff,
@@ -23,9 +28,46 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { useSignInForm } from "./_hooks/use-sign-in-form";
+import { Spinner } from "@/components/ui/spinner";
+
+const authFormSchema = z.object({
+  email: z
+    .email("Email invalido. Tente novamente")
+    .nonempty("Campo obrigatório."),
+  password: z.string().nonempty("Campo obrigatório."),
+});
+
+export type AuthFormData = z.infer<typeof authFormSchema>;
 
 export default function SignIn() {
   const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
+
+  const router = useRouter();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<AuthFormData>({
+    resolver: zodResolver(authFormSchema),
+  });
+
+  const { authenticateMutation, isPending } = useSignInForm();
+
+  const handleFormSubmit = React.useCallback(
+    async (data: AuthFormData) => {
+      try {
+        await authenticateMutation(data);
+
+        toast.success("Login realizado com sucesso!");
+        router.push("/products");
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [authenticateMutation, router]
+  );
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
@@ -72,62 +114,87 @@ export default function SignIn() {
                   nossas ofertas
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="meuemail@email.com"
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Senha</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input
-                      id="password"
-                      type={isPasswordVisible ? "text" : "password"}
-                      className="pl-10"
-                      placeholder="Sua senha"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-                      className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                    >
-                      {isPasswordVisible ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
+              <CardContent>
+                <form
+                  className="space-y-4"
+                  onSubmit={handleSubmit(handleFormSubmit)}
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="email">Email</Label>
+                      {errors.email && (
+                        <span className="text-sm text-red-500">
+                          {errors.email.message}
+                        </span>
                       )}
-                    </button>
+                    </div>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        {...register("email")}
+                        placeholder="meuemail@email.com"
+                        className="pl-10"
+                      />
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <Link
-                    href={"/auth/recover-password"}
-                    className="text-sm mb-4 text-green-600 hover:text-green-500 hover:underline"
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password">Senha</Label>
+                      {errors.password && (
+                        <span className="text-sm text-red-500">
+                          {errors.password.message}
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        {...register("password")}
+                        id="password"
+                        type={isPasswordVisible ? "text" : "password"}
+                        className="pl-10"
+                        placeholder="Sua senha"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                        className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                      >
+                        {isPasswordVisible ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <Link
+                      href={"/auth/recover-password"}
+                      className="text-sm mb-4 text-green-600 hover:text-green-500 hover:underline"
+                    >
+                      Esqueceu sua senha?
+                    </Link>
+                  </div>
+                  <Button
+                    type="submit"
+                    className="w-full cursor-pointer"
+                    disabled={isPending}
                   >
-                    Esqueceu sua senha?
-                  </Link>
-                </div>
-                <Button className="w-full">Entrar</Button>
-                <div className="text-center">
-                  <span className="text-sm text-muted-foreground">
-                    Não possui uma conta?
-                  </span>{" "}
-                  <Link
-                    href={"/auth/sign-up"}
-                    className="text-sm font-semibold text-green-600 hover:text-green-500 hover:underline "
-                  >
-                    Cadastre-se
-                  </Link>
-                </div>
+                    {isPending ? <Spinner /> : "Entrar"}
+                  </Button>
+                  <div className="text-center">
+                    <span className="text-sm text-muted-foreground">
+                      Não possui uma conta?
+                    </span>{" "}
+                    <Link
+                      href={"/auth/sign-up"}
+                      className="text-sm font-semibold text-green-600 hover:text-green-500 hover:underline "
+                    >
+                      Cadastre-se
+                    </Link>
+                  </div>
+                </form>
               </CardContent>
             </Card>
           </div>

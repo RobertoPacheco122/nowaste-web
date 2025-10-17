@@ -1,5 +1,10 @@
+"use client";
+
+import React from "react";
+
 import Link from "next/link";
-import { User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { LogOut, User } from "lucide-react";
 
 import { Button } from "./ui/button";
 import {
@@ -11,14 +16,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useLoggedUser } from "@/hooks/use-logged-user";
+import { removeUserAuthToken } from "@/utils/user/remove-user-auth-token";
 
 export function AccountMenu() {
+  const { loggedUser, setLoggedUser } = useLoggedUser();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    removeUserAuthToken();
+    setLoggedUser(null);
+
+    router.push("/auth/sign-in");
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button className="cursor-pointer" variant="outline">
           <User />
-          <span>Olá, visitante!</span>
+          <span>Olá, {loggedUser?.name || "visitante!"}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end">
@@ -26,15 +43,48 @@ export function AccountMenu() {
           Minha conta
         </DropdownMenuLabel>
         <DropdownMenuGroup>
-          <DropdownMenuItem className="cursor-pointer" asChild>
-            <Link href="/auth/sign-up">Cadastrar-se</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer">Perfil</DropdownMenuItem>
+          {!loggedUser && (
+            <React.Fragment>
+              <DropdownMenuItem
+                className="cursor-pointer hover:bg-muted"
+                asChild
+              >
+                <Link href="/auth/sign-up">Cadastrar-se</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer hover:bg-muted"
+                asChild
+              >
+                <Link href="/auth/sign-in">Entrar</Link>
+              </DropdownMenuItem>
+            </React.Fragment>
+          )}
+
+          {loggedUser && (
+            <React.Fragment>
+              <DropdownMenuItem className="cursor-pointer hover:bg-muted">
+                <User /> Perfil
+              </DropdownMenuItem>
+            </React.Fragment>
+          )}
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem className="cursor-pointer" asChild>
-          <Link href="/auth/sign-in">Entrar</Link>
-        </DropdownMenuItem>
+
+        {loggedUser && (
+          <React.Fragment>
+            <DropdownMenuSeparator />
+
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                className="cursor-pointer hover:bg-muted hover:text-red-500"
+                asChild
+              >
+                <span onClick={handleLogout} className="text-red-500">
+                  <LogOut className="text-red-500" /> Sair
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </React.Fragment>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
