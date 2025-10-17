@@ -5,10 +5,14 @@ import Cookies from "js-cookie";
 
 import { AuthFormData } from "../page";
 import { ApiErrorResponse, authenticate } from "@/api/auth/authenticate";
+import { useLoggedUser } from "@/hooks/use-logged-user";
+import { getLoggedUserInformations } from "@/utils/user/get-logged-user-informations";
 
 export const AUTH_COOKIE_NAME = "nowaste_auth_token";
 
 export const useSignInForm = () => {
+  const { setLoggedUser } = useLoggedUser();
+
   const { isError, isPending, isSuccess, mutateAsync } = useMutation<
     Awaited<ReturnType<typeof authenticate>>,
     AxiosError<ApiErrorResponse>,
@@ -17,6 +21,12 @@ export const useSignInForm = () => {
     mutationFn: authenticate,
     onSuccess: ({ data }) => {
       Cookies.set(AUTH_COOKIE_NAME, data.token, { expires: 1 });
+
+      const userInformations = getLoggedUserInformations();
+
+      console.log("userInformations", userInformations);
+
+      setLoggedUser(userInformations);
     },
     onError: (error) => {
       if (error.status === 401) {
