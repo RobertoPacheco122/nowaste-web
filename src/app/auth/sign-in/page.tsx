@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useSignInForm } from "./_hooks/use-sign-in-form";
+import { Spinner } from "@/components/ui/spinner";
 
 const authFormSchema = z.object({
   email: z
@@ -180,7 +181,7 @@ export default function SignIn() {
                     className="w-full cursor-pointer"
                     disabled={isPending}
                   >
-                    Entrar
+                    {isPending ? <Spinner /> : "Entrar"}
                   </Button>
                   <div className="text-center">
                     <span className="text-sm text-muted-foreground">

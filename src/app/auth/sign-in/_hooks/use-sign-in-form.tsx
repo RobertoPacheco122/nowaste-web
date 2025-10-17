@@ -6,6 +6,8 @@ import Cookies from "js-cookie";
 import { AuthFormData } from "../page";
 import { ApiErrorResponse, authenticate } from "@/api/auth/authenticate";
 
+export const AUTH_COOKIE_NAME = "nowaste_auth_token";
+
 export const useSignInForm = () => {
   const { isError, isPending, isSuccess, mutateAsync } = useMutation<
     Awaited<ReturnType<typeof authenticate>>,
@@ -14,7 +16,7 @@ export const useSignInForm = () => {
   >({
     mutationFn: authenticate,
     onSuccess: ({ data }) => {
-      Cookies.set("auth_token", data.token, { expires: 1 });
+      Cookies.set(AUTH_COOKIE_NAME, data.token, { expires: 1 });
     },
     onError: (error) => {
       if (error.status === 401) {
