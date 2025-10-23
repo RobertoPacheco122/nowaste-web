@@ -9,6 +9,7 @@ export type AddressType = 1 | 2 | 3 | 4;
 
 export interface GetALLAddressesByPersonResponse {
   id: string;
+  isDeleted: boolean;
   streetName: string;
   number: string;
   complement: string;

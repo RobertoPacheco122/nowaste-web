@@ -9,6 +9,7 @@ import {
   ChevronRight,
   Home,
   MapPin,
+  Pin,
 } from "lucide-react";
 
 import { useUserAddresses } from "@/hooks/use-user-addresses";
@@ -87,6 +88,7 @@ export const AddressToDeliver = () => {
                         {addressType === 1 && <Home size={18} />}
                         {addressType === 2 && <BriefcaseBusiness size={18} />}
                         {addressType === 3 && <Building2 size={18} />}
+                        {addressType === 4 && <Pin size={18} />}
                       </div>
                       <div className="text-sm text-gray-600">
                         {streetName}, {number} - {neighborhood}

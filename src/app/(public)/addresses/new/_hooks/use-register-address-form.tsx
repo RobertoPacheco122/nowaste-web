@@ -35,6 +35,7 @@ export const useRegisterAddressForm = ({
       if (!loggedUser) return;
 
       const createdAddress: GetALLAddressesByPersonResponse = {
+        isDeleted: false,
         addressType: variables.addressType,
         city: variables.city,
         complement: variables.complement,
