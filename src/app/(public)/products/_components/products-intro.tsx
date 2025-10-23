@@ -13,11 +13,11 @@ import { SlidersHorizontal } from "lucide-react";
 import React from "react";
 import { ProductsFilters } from "./products-filters";
 
-export const ProductsSearch = () => {
+export const ProductsIntro = () => {
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
 
   return (
-    <section className="py-6 bg-gray-50 border-b">
+    <section className="py-6 bg-gray-50">
       <div className="container m-auto px-4">
         <div className="flex flex-col space-y-4">
           <div>

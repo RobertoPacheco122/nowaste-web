@@ -53,9 +53,8 @@ export const useSignUpForm = ({
           {
             description: (
               <span className="text-muted-foreground">
-                Ocorreu um erro interno ao cadastar o usuário. Tente novamente
-                mais tarde. Caso o problema persista, entre em contato com nossa
-                equipe.
+                Ocorreu um erro interno ao cadastar o usuário. Não se preocupe,
+                não é culpa sua :).
               </span>
             ),
           }

@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { useLoggedUser } from "./use-logged-user";
 import { getAllAddressesByPerson } from "@/api/address/get-all-addresses-by-person";
+import { getLoggedUserInformations } from "@/utils/user/get-logged-user-informations";
 
 export const useUserAddresses = () => {
-  const { loggedUser } = useLoggedUser();
+  const loggedUser = getLoggedUserInformations();
 
   const { data, isError, error, isLoading } = useQuery({
     queryKey: ["user-addresses", loggedUser?.personId],
