@@ -43,82 +43,109 @@ export const cartContext = createContext<CartContext>({
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [items, setItems] = React.useState<CartItem[]>([]);
 
-  const handleAddItem = React.useCallback(async (productId: string) => {
-    try {
-      const { data: product, status } = await queryClient.fetchQuery({
-        queryKey: ["product", productId],
-        queryFn: () => getProductById({ id: productId }),
-        staleTime: PRODUCT_STALE_TIME,
-      });
+  const handleAddItem = React.useCallback(
+    async (productId: string) => {
+      try {
+        const { data: product, status } = await queryClient.fetchQuery({
+          queryKey: ["product", productId],
+          queryFn: () => getProductById({ id: productId }),
+          staleTime: PRODUCT_STALE_TIME,
+        });
 
-      if (status !== 200)
-        throw new Error(`Error on product fetching. Status code: ${status}`);
+        if (status !== 200)
+          throw new Error(`Error on product fetching. Status code: ${status}`);
 
-      toast.success("Produto adicionado ao carrinho com sucesso!");
+        const lastItem = items[items.length - 1];
 
-      let cartItemsOnCookies = getUserCartItems();
+        if (
+          lastItem &&
+          lastItem.product.establishment.id !== product.establishment.id
+        ) {
+          toast.error(
+            <span className="font-semibold">
+              Não foi possível adicionar o produto
+            </span>,
+            {
+              description: (
+                <span className="text-muted-foreground">
+                  Não é possível ter itens de diferentes estabelecimentos no
+                  mesmo carrinho. Caso queira adicionar um produto de outro
+                  estabelecimento, limpe o carrinho atual e tente novamente.
+                </span>
+              ),
+            }
+          );
 
-      if (!cartItemsOnCookies)
-        Cookies.set(CART_ITEMS_COOKIE_NAME, JSON.stringify([]));
+          return;
+        }
 
-      cartItemsOnCookies = getUserCartItems();
+        toast.success("Produto adicionado ao carrinho com sucesso!");
 
-      const cartItems: CartItemOnCookies[] = cartItemsOnCookies || [];
+        let cartItemsOnCookies = getUserCartItems();
 
-      const productInCartIndex = cartItems.findIndex(
-        (cartItem) => cartItem.productId === productId
-      );
+        if (!cartItemsOnCookies)
+          Cookies.set(CART_ITEMS_COOKIE_NAME, JSON.stringify([]));
 
-      const productAlreadyExists = productInCartIndex !== -1;
+        cartItemsOnCookies = getUserCartItems();
 
-      if (!productAlreadyExists) {
-        setItems((previousValues) => {
-          const newProducts = [...previousValues];
-          newProducts.push({
-            product,
-            quantity: 1,
+        const cartItems: CartItemOnCookies[] = cartItemsOnCookies || [];
+
+        const productInCartIndex = cartItems.findIndex(
+          (cartItem) => cartItem.productId === productId
+        );
+
+        const productAlreadyExists = productInCartIndex !== -1;
+
+        if (!productAlreadyExists) {
+          setItems((previousValues) => {
+            const newProducts = [...previousValues];
+            newProducts.push({
+              product,
+              quantity: 1,
+            });
+
+            return newProducts;
           });
 
-          return newProducts;
+          cartItems.push({ productId, quantity: 1 });
+          Cookies.set(CART_ITEMS_COOKIE_NAME, JSON.stringify(cartItems));
+
+          return;
+        }
+
+        setItems((previousValues) => {
+          return previousValues.map((item) => {
+            if (item.product.id !== product.id) return item;
+
+            return {
+              ...item,
+              quantity: item.quantity + 1,
+            };
+          });
         });
 
-        cartItems.push({ productId, quantity: 1 });
+        cartItems[productInCartIndex].quantity += 1;
         Cookies.set(CART_ITEMS_COOKIE_NAME, JSON.stringify(cartItems));
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error(error);
 
-        return;
+          toast.error(
+            <span className="font-semibold">Erro ao adicionar produto</span>,
+            {
+              description: (
+                <span className="text-muted-foreground">
+                  Ocorreu um erro ao adicionar o produto no carrinho. Por favor,
+                  tente novamente.
+                </span>
+              ),
+            }
+          );
+        }
       }
-
-      setItems((previousValues) => {
-        return previousValues.map((item) => {
-          if (item.product.id !== product.id) return item;
-
-          return {
-            ...item,
-            quantity: item.quantity + 1,
-          };
-        });
-      });
-
-      cartItems[productInCartIndex].quantity += 1;
-      Cookies.set(CART_ITEMS_COOKIE_NAME, JSON.stringify(cartItems));
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error);
-
-        toast.error(
-          <span className="font-semibold">Erro ao adicionar produto</span>,
-          {
-            description: (
-              <span className="text-muted-foreground">
-                Ocorreu um erro ao adicionar o produto no carrinho. Por favor,
-                tente novamente.
-              </span>
-            ),
-          }
-        );
-      }
-    }
-  }, []);
+    },
+    [items]
+  );
 
   const handleAddItemQuantity = (productId: string, quantity: number) => {
     setItems((previousValues) => {

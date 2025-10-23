@@ -18,6 +18,7 @@ import { useSelectedAddress } from "../_hooks/use-selected-address";
 import { useAllAvailableEstablishmentsForAddress } from "@/hooks/use-all-available-establishments-for-address";
 import { useProductsAppliedFilters } from "../_hooks/use-products-applied-filters";
 import { useUserCart } from "@/hooks/use-user-cart";
+import { calculateProductPriceInformations } from "@/utils/product/calculate-product-price-informations";
 
 export const ProductsGrid = () => {
   const { appliedFilters } = useProductsAppliedFilters();
@@ -158,22 +159,13 @@ export const ProductsGrid = () => {
               averageRating,
             },
           }) => {
-            const salePriceInReais = salePrice / 100;
-            const discountPriceInReais = (salePrice - price) / 100;
-            const dicountInPercentage = showDiscountAsPercentage
-              ? Math.round((1 - salePrice / price) * 100)
-              : 0;
-            const hasProductAnyDiscount = dicountInPercentage > 0;
+            const {
+              dicountInPercentage,
+              formattedDiscountPriceInBrl,
+              formattedSalePriceInBrl,
+            } = calculateProductPriceInformations(price, salePrice);
 
-            const formattedSalePriceInBrl = new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: "BRL",
-            }).format(salePriceInReais);
-            const formattedDiscountPriceInBrl = new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: "BRL",
-            }).format(discountPriceInReais);
-            const formattedDiscountInPercentage = `${dicountInPercentage}% OFF`;
+            const hasProductAnyDiscount = salePrice < price;
 
             const formattedEstablishmentDistanceToAddressInKilometers = (
               distanceInMetersFromAddressToEstablishment / 1000
@@ -186,7 +178,7 @@ export const ProductsGrid = () => {
                   {hasProductAnyDiscount && (
                     <Product.DiscountBadge className="absolute top-2 right-2">
                       {showDiscountAsPercentage
-                        ? formattedDiscountInPercentage
+                        ? `${dicountInPercentage}%`
                         : formattedDiscountPriceInBrl}
                     </Product.DiscountBadge>
                   )}
