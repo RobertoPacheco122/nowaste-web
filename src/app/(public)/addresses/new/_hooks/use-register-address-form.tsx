@@ -47,20 +47,24 @@ export const useRegisterAddressForm = ({
         state: variables.state,
         streetName: variables.streetName,
         zipCode: variables.zipCode,
+        establishmentId: undefined,
+        institutionId: undefined,
       };
 
       const addressesCache = queryClient.getQueryData<{
         data: GetALLAddressesByPersonResponse[];
         status: number;
-      }>(["addresses", loggedUser.personId]);
+      }>(["user-addresses", loggedUser.personId]);
+
+      const newAddresses = addressesCache?.data
+        ? [...addressesCache.data, createdAddress]
+        : [createdAddress];
 
       queryClient.setQueryData<{
         data: GetALLAddressesByPersonResponse[];
         status: number;
-      }>(["addresses", loggedUser.personId], {
-        data: addressesCache?.data
-          ? [...addressesCache.data, createdAddress]
-          : [createdAddress],
+      }>(["user-addresses", loggedUser.personId], {
+        data: newAddresses,
         status: 200,
       });
     },

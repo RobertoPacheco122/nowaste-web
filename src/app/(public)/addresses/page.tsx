@@ -6,6 +6,7 @@ import {
   Home,
   MapPin,
   Pencil,
+  Pin,
   SearchX,
   Trash2,
 } from "lucide-react";
@@ -89,6 +90,7 @@ export default function Addresses() {
                               <BriefcaseBusiness size={18} />
                             )}
                             {addressType === 3 && <Building2 size={18} />}
+                            {addressType === 4 && <Pin size={18} />}
                           </div>
                           <div>
                             <CardTitle className="text-lg">

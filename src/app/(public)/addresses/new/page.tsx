@@ -8,6 +8,8 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronLeft, Plus } from "lucide-react";
 import { IMaskInput } from "react-imask";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 import {
   Card,
@@ -70,12 +72,15 @@ export type RegisterAdressFormData = z.infer<typeof registerAdressFormSchema>;
 export default function NewAddress() {
   const [zipCodeToFetch, setZipCodeToFetch] = React.useState("");
 
+  const router = useRouter();
+
   const {
     register,
     control,
     handleSubmit,
     getValues,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<RegisterAdressFormData>({
     resolver: zodResolver(registerAdressFormSchema),
@@ -154,6 +159,11 @@ export default function NewAddress() {
         zipCode,
         personId: loggedUser.personId,
       });
+
+      toast.success("Endereço cadastrado com sucesso!");
+
+      reset();
+      router.push("/addresses");
     } catch (error) {
       if (error instanceof Error) {
         console.error(`Error while registering address: ${error.message}`);
