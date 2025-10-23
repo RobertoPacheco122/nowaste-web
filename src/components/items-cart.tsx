@@ -192,7 +192,9 @@ export function ItemsCart() {
           </div>
         )}
         <SheetFooter>
-          <Button className="cursor-pointer">Finalizar compra</Button>
+          <Link href="/checkout">
+            <Button className="cursor-pointer w-full">Finalizar compra</Button>
+          </Link>
           <Button
             className="cursor-pointer"
             onClick={handleClearAllItems}
