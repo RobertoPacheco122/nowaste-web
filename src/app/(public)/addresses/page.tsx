@@ -62,8 +62,6 @@ export default function Addresses() {
     }
   };
 
-  console.log("addresses", addresses);
-
   return (
     <React.Fragment>
       <Dialog
