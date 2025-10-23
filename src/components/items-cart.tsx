@@ -158,7 +158,7 @@ export function ItemsCart() {
                             </div>
                           </div>
                           <div className=" space-x-2 text-right">
-                            <span className="font-bold text-lg text-green-600">
+                            <span className="font-semibold text-green-600">
                               Subtotal: {formattedSubtotalSalePriceInBrl}
                             </span>
                             {hasProductAnyDiscount && (
