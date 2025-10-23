@@ -29,12 +29,22 @@ export function ItemsCart() {
     handleClearAllItems,
   } = useUserCart();
 
+  const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
+
   return (
     <Sheet>
       <SheetTrigger asChild>
         <Button variant="outline" className="cursor-pointer">
           <ShoppingCart />
           <span className="sr-only">Shopping Cart</span>
+          {totalItems > 0 && (
+            <Badge
+              className="rounded-full text-white font-semibold"
+              variant={"destructive"}
+            >
+              {totalItems}
+            </Badge>
+          )}
         </Button>
       </SheetTrigger>
       <SheetContent>
