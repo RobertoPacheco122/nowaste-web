@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { ReactQueryProvider } from "@/providers/react-query-provider";
 import { LoggedUserProvider } from "@/providers/logged-user-provider";
 import "./globals.css";
+import { CartProvider } from "@/providers/cart-provider";
 
 export const metadata: Metadata = {
   title: "Nowaste",
@@ -20,8 +21,10 @@ export default function RootLayout({
       <body className={`antialiased`}>
         <ReactQueryProvider>
           <LoggedUserProvider>
-            <main>{children}</main>
-            <Toaster />
+            <CartProvider>
+              <main>{children}</main>
+              <Toaster richColors />
+            </CartProvider>
           </LoggedUserProvider>
         </ReactQueryProvider>
       </body>

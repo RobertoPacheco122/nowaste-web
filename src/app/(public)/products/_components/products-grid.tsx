@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 
 import { SearchX, ShoppingCart } from "lucide-react";
@@ -15,10 +17,12 @@ import { AddressToDeliver } from "./address-to-deliver";
 import { useSelectedAddress } from "../_hooks/use-selected-address";
 import { useAllAvailableEstablishmentsForAddress } from "@/hooks/use-all-available-establishments-for-address";
 import { useProductsAppliedFilters } from "../_hooks/use-products-applied-filters";
+import { useUserCart } from "@/hooks/use-user-cart";
 
 export const ProductsGrid = () => {
   const { appliedFilters } = useProductsAppliedFilters();
   const { selectedAddressId } = useSelectedAddress();
+  const { handleAddItem } = useUserCart();
 
   const { data } = useAllAvailableEstablishmentsForAddress({
     addressId: selectedAddressId || "",
@@ -129,18 +133,6 @@ export const ProductsGrid = () => {
           </SelectContent>
         </Select>
       </div>
-      {products.length === 0 && (
-        <div className="flex flex-col items-center gap-2">
-          <SearchX className="h-16 w-16" />
-          <h3 className="text-xl font-semibold mb-2">
-            Produtos não encontrados
-          </h3>
-          <p className="text-gray-400">
-            Não encontramos ofertas para o seu endereço. Fique de olho para
-            novidades em breve!
-          </p>
-        </div>
-      )}
       {filteredProducts.length === 0 && (
         <div className="flex flex-col items-center gap-2">
           <SearchX className="h-16 w-16" />
@@ -148,7 +140,7 @@ export const ProductsGrid = () => {
             Produtos não encontrados
           </h3>
           <p className="text-gray-400">
-            Não encontramos ofertas para os filtos aplicados. Tente
+            Não encontramos ofertas para os filtos aplicados/endereço. Tente
             reajustá-los!
           </p>
         </div>
@@ -219,7 +211,10 @@ export const ProductsGrid = () => {
                       <Product.Price>{formattedSalePriceInBrl}</Product.Price>
                     </div>
                   </div>
-                  <Product.AddToCartButton className="w-full cursor-pointer">
+                  <Product.AddToCartButton
+                    onClick={() => handleAddItem(id)}
+                    className="w-full cursor-pointer"
+                  >
                     <ShoppingCart /> Adicionar ao carrinho
                   </Product.AddToCartButton>
                 </Product.Content>
