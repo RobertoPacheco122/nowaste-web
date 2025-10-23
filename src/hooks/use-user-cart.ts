@@ -11,20 +11,26 @@ export const useUserCart = () => {
     (context) => context.handleAddItem
   );
 
-  const handleRemoveItem = useContextSelector(
-    cartContext,
-    (context) => context.handleRemoveItem
-  );
-
   const handleAddItemQuantity = useContextSelector(
     cartContext,
     (context) => context.handleAddItemQuantity
   );
 
+  const handleClearAllItems = useContextSelector(
+    cartContext,
+    (context) => context.handleClearAllItems
+  );
+
+  const handleRemoveItem = useContextSelector(
+    cartContext,
+    (context) => context.handleRemoveItem
+  );
+
   return {
-    items,
     handleAddItem,
-    handleRemoveItem,
     handleAddItemQuantity,
+    handleClearAllItems,
+    handleRemoveItem,
+    items,
   };
 };

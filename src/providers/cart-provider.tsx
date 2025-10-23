@@ -27,15 +27,17 @@ interface CartItem {
 interface CartContext {
   items: CartItem[];
   handleAddItem: (productId: string) => Promise<void>;
-  handleRemoveItem: (productId: string) => void;
   handleAddItemQuantity: (productId: string, quantity: number) => void;
+  handleClearAllItems: () => void;
+  handleRemoveItem: (productId: string) => void;
 }
 
 export const cartContext = createContext<CartContext>({
   items: [],
   handleAddItem: async () => {},
-  handleRemoveItem: () => {},
   handleAddItemQuantity: () => {},
+  handleClearAllItems: () => {},
+  handleRemoveItem: () => {},
 });
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
@@ -118,25 +120,6 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  const handleRemoveItem = React.useCallback((productId: string) => {
-    setItems((previousValues) => {
-      return previousValues.filter((item) => item.product.id !== productId);
-    });
-
-    const cartItemsOnCookies = getUserCartItems();
-
-    if (!cartItemsOnCookies) return;
-
-    const cartItemsWithoutTheRemovedItem = cartItemsOnCookies.filter(
-      (cartItem) => cartItem.productId !== productId
-    );
-
-    Cookies.set(
-      CART_ITEMS_COOKIE_NAME,
-      JSON.stringify(cartItemsWithoutTheRemovedItem)
-    );
-  }, []);
-
   const handleAddItemQuantity = (productId: string, quantity: number) => {
     setItems((previousValues) => {
       return previousValues.map((item) => {
@@ -163,6 +146,31 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
     Cookies.set(CART_ITEMS_COOKIE_NAME, JSON.stringify(cartItemsOnCookies));
   };
+
+  const handleClearAllItems = React.useCallback(() => {
+    setItems([]);
+
+    Cookies.remove(CART_ITEMS_COOKIE_NAME);
+  }, []);
+
+  const handleRemoveItem = React.useCallback((productId: string) => {
+    setItems((previousValues) => {
+      return previousValues.filter((item) => item.product.id !== productId);
+    });
+
+    const cartItemsOnCookies = getUserCartItems();
+
+    if (!cartItemsOnCookies) return;
+
+    const cartItemsWithoutTheRemovedItem = cartItemsOnCookies.filter(
+      (cartItem) => cartItem.productId !== productId
+    );
+
+    Cookies.set(
+      CART_ITEMS_COOKIE_NAME,
+      JSON.stringify(cartItemsWithoutTheRemovedItem)
+    );
+  }, []);
 
   const loadCartItemsOnCookiesToState = React.useCallback(async () => {
     const cartItemsOnCookies = getUserCartItems();
@@ -220,8 +228,9 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         items,
         handleAddItem,
-        handleRemoveItem,
         handleAddItemQuantity,
+        handleClearAllItems,
+        handleRemoveItem,
       }}
     >
       {children}

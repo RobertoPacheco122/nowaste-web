@@ -22,7 +22,12 @@ import { Badge } from "./ui/badge";
 import { calculateProductPriceInformations } from "@/utils/product/calculate-product-price-informations";
 
 export function ItemsCart() {
-  const { items, handleRemoveItem, handleAddItemQuantity } = useUserCart();
+  const {
+    items,
+    handleRemoveItem,
+    handleAddItemQuantity,
+    handleClearAllItems,
+  } = useUserCart();
 
   return (
     <Sheet>
@@ -177,9 +182,19 @@ export function ItemsCart() {
           </div>
         )}
         <SheetFooter>
-          <Button type="submit">Finalizar compra</Button>
+          <Button className="cursor-pointer">Finalizar compra</Button>
+          <Button
+            className="cursor-pointer"
+            onClick={handleClearAllItems}
+            variant={"destructive"}
+            disabled={items.length === 0}
+          >
+            <Trash2 /> Limpar carrinho
+          </Button>
           <SheetClose asChild>
-            <Button variant="outline">Fechar</Button>
+            <Button className="cursor-pointer" variant="outline">
+              Fechar
+            </Button>
           </SheetClose>
         </SheetFooter>
       </SheetContent>
