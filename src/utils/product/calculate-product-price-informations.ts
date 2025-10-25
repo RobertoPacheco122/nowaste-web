@@ -3,6 +3,12 @@ export const calculateProductPriceInformations = (
   salePrice: number,
   quantity = 0
 ) => {
+  const originalPriceInReais = price / 100;
+  const formattedOriginalPriceInBrl = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "BRL",
+  }).format(originalPriceInReais);
+
   const salePriceInReais = salePrice / 100;
   const formattedSalePriceInBrl = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -31,6 +37,7 @@ export const calculateProductPriceInformations = (
   ).format(subtotalPriceWithoutDiscountInReais);
 
   return {
+    formattedOriginalPriceInBrl,
     formattedSalePriceInBrl,
     formattedDiscountPriceInBrl,
     dicountInPercentage,

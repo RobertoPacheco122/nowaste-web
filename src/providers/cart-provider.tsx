@@ -26,7 +26,7 @@ interface CartItem {
 
 interface CartContext {
   items: CartItem[];
-  handleAddItem: (productId: string) => Promise<void>;
+  handleAddItem: (productId: string, quantity?: number) => Promise<void>;
   handleAddItemQuantity: (productId: string, quantity: number) => void;
   handleClearAllItems: () => void;
   handleRemoveItem: (productId: string) => void;
@@ -44,7 +44,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [items, setItems] = React.useState<CartItem[]>([]);
 
   const handleAddItem = React.useCallback(
-    async (productId: string) => {
+    async (productId: string, quantity = 1) => {
       try {
         const { data: product, status } = await queryClient.fetchQuery({
           queryKey: ["product", productId],
@@ -101,7 +101,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
             const newProducts = [...previousValues];
             newProducts.push({
               product,
-              quantity: 1,
+              quantity: quantity,
             });
 
             return newProducts;
@@ -119,12 +119,12 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
             return {
               ...item,
-              quantity: item.quantity + 1,
+              quantity: item.quantity + quantity,
             };
           });
         });
 
-        cartItems[productInCartIndex].quantity += 1;
+        cartItems[productInCartIndex].quantity += quantity;
         Cookies.set(CART_ITEMS_COOKIE_NAME, JSON.stringify(cartItems));
       } catch (error) {
         if (error instanceof Error) {

@@ -185,7 +185,7 @@ export const ProductsGrid = () => {
                 </Link>
                 <Product.Header>
                   <div className="flex justify-between">
-                    <Link href={`product/${id}`}>
+                    <Link href={`products/${id}`}>
                       <Product.Title className="line-clamp-1 hover:text-green-600 transition-colors cursor-pointer">
                         {name}
                       </Product.Title>
