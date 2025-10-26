@@ -10,15 +10,17 @@ import { ProductsPageProvider } from "./_providers/products-page-provider";
 export default function Products() {
   return (
     <ProductsPageProvider>
-      <ProductsIntro />
-      <section>
-        <div className="container m-auto py-6 px-4">
-          <div className="flex gap-6 ">
-            <Aside />
-            <ProductsGrid />
+      <main>
+        <ProductsIntro />
+        <section>
+          <div className="container m-auto py-6 px-4">
+            <div className="flex gap-6 ">
+              <Aside />
+              <ProductsGrid />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
     </ProductsPageProvider>
   );
 }

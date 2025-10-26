@@ -12,6 +12,7 @@ import {
 import { SlidersHorizontal } from "lucide-react";
 import React from "react";
 import { ProductsFilters } from "./products-filters";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const ProductsIntro = () => {
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
@@ -45,9 +46,11 @@ export const ProductsIntro = () => {
                     Refine sua busca para encontrar os melhores negócios
                   </SheetDescription>
                 </SheetHeader>
-                <div className="mt-6">
-                  <ProductsFilters />
-                </div>
+                <ScrollArea className="h-[calc(100vh-140px)]">
+                  <div className="p-4 ">
+                    <ProductsFilters />
+                  </div>
+                </ScrollArea>
               </SheetContent>
             </Sheet>
           </div>

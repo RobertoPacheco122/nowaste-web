@@ -3,8 +3,9 @@ import type { Metadata } from "next";
 
 import { ReactQueryProvider } from "@/providers/react-query-provider";
 import { LoggedUserProvider } from "@/providers/logged-user-provider";
-import "./globals.css";
 import { CartProvider } from "@/providers/cart-provider";
+
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Nowaste",

@@ -48,6 +48,7 @@ export interface GetProductByIdResponse {
     averageRating: number;
     totalReviews: number;
     status: EstablishmentStatus;
+    deliveryFeeInCents: number;
   };
   actualPriceHistory: {
     id: string;
