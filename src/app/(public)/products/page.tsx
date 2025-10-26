@@ -11,15 +11,17 @@ export default function Products() {
   return (
     <ProductsPageProvider>
       <main>
-        <ProductsIntro />
-        <section>
-          <div className="container m-auto py-6 px-4">
-            <div className="flex gap-6 ">
-              <Aside />
-              <ProductsGrid />
+        <div className="min-h-screen">
+          <ProductsIntro />
+          <section>
+            <div className="container m-auto py-6 px-4">
+              <div className="flex gap-6 ">
+                <Aside />
+                <ProductsGrid />
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </main>
     </ProductsPageProvider>
   );
