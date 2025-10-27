@@ -25,6 +25,14 @@ import { calculateProductPriceInformations } from "@/utils/product/calculate-pro
 import { useUserCart } from "@/hooks/use-user-cart";
 import { useUserAddresses } from "@/hooks/use-user-addresses";
 import { AddressType } from "@/api/address/register-address";
+import { useCreateCheckoutSection } from "@/hooks/use-create-checkout-section";
+import { Spinner } from "@/components/ui/spinner";
+import { useRegisterOrder } from "./_hooks/use-register-order";
+import {
+  PaymentMethod,
+  RegisterOrderRequest,
+} from "@/api/order/register-order";
+import { toast } from "sonner";
 
 const renderStars = (rating: number) => {
   return Array.from({ length: 5 }, (_, i) => (
@@ -42,9 +50,77 @@ const renderStars = (rating: number) => {
 };
 
 export default function Checkout() {
+  const [isLoadingPayment, setIsLoadingPayment] = React.useState(false);
   const { items, handleRemoveItem, handleAddItemQuantity } = useUserCart();
 
   const { data: addresses } = useUserAddresses();
+
+  const deliveryAddress =
+    addresses?.find(({ addressType }) => addressType === AddressType.home) ||
+    addresses?.[0];
+
+  const { registerOrderMutation } = useRegisterOrder();
+  const { createCheckoutSectionMutation } = useCreateCheckoutSection();
+
+  const handleMakePayment = async () => {
+    if (!deliveryAddress) {
+      toast.error(
+        "Cadastre e selecione um endereço de entrega antes de finalizar o pedido."
+      );
+
+      return;
+    }
+
+    if (!items || items.length === 0) {
+      toast.error("Adicione produtos ao carrinho antes de finalizar o pedido.");
+
+      return;
+    }
+
+    try {
+      setIsLoadingPayment(true);
+
+      const registerOrderPayload: RegisterOrderRequest = {
+        addressId: deliveryAddress.id,
+        establishmentId: items[0].product.establishment.id,
+        items: items.map(({ quantity, product: { id } }) => {
+          return {
+            productId: id,
+            itemQuantity: quantity,
+          };
+        }),
+        orderDate: new Date().toISOString(),
+        paymentMethod: PaymentMethod.creditCard,
+        observations: "",
+      };
+
+      const { data: orderInformations, status: orderInformationsStatus } =
+        await registerOrderMutation(registerOrderPayload);
+
+      if (orderInformationsStatus !== 201)
+        throw new Error(
+          "An error occurred while registering the order. Error code: " +
+            orderInformationsStatus
+        );
+
+      const { data, status } = await createCheckoutSectionMutation({
+        orderId: orderInformations.orderId,
+      });
+
+      if (status !== 201)
+        throw new Error(
+          "An error occurred while making the payment. Error code: " + status
+        );
+
+      window.location.href = data.sessionUrl;
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message);
+      }
+
+      setIsLoadingPayment(false);
+    }
+  };
 
   const orderPriceInformations = React.useMemo(() => {
     if (!items || items.length === 0) return;
@@ -64,9 +140,13 @@ export default function Checkout() {
     const discountsInCents =
       subtotalOriginalPriceInCents - subtotalSalePriceInCents;
 
-    const deliverFeeInCents = items[0].product.establishment.deliveryFeeInCents;
+    const taxPerOrderInCents = 100;
 
-    const totalPriceInCents = subtotalSalePriceInCents + deliverFeeInCents;
+    const deliveryFeeInCents =
+      items[0].product.establishment.deliveryFeeInCents;
+
+    const totalPriceInCents =
+      subtotalSalePriceInCents + deliveryFeeInCents + taxPerOrderInCents;
 
     const formattedSubtotalSalePriceInBrl = new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -78,10 +158,15 @@ export default function Checkout() {
       currency: "BRL",
     }).format(discountsInCents / 100);
 
-    const formattedDeliverFeeInBrl = new Intl.NumberFormat("pt-BR", {
+    const taxPerOrderInBrl = new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",
-    }).format(deliverFeeInCents / 100);
+    }).format(taxPerOrderInCents / 100);
+
+    const formattedDeliveryFeeInBrl = new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(deliveryFeeInCents / 100);
 
     const formattedTotalPriceInBrl = new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -92,21 +177,19 @@ export default function Checkout() {
       formattedValues: {
         subtotalSalePriceInBrl: formattedSubtotalSalePriceInBrl,
         discountsPriceInBrl: formattedDiscountsPriceInBrl,
-        deliverFeeInBrl: formattedDeliverFeeInBrl,
+        deliveryFeeInBrl: formattedDeliveryFeeInBrl,
         totalPriceInBrl: formattedTotalPriceInBrl,
+        taxPerOderInBrl: taxPerOrderInBrl,
       },
       inCentsValues: {
         subtotalSalePrice: subtotalSalePriceInCents,
         discounts: discountsInCents,
-        deliveryFeePrice: deliverFeeInCents,
+        deliveryFeePrice: deliveryFeeInCents,
         totalPrice: totalPriceInCents,
+        taxPerOrder: taxPerOrderInCents,
       },
     };
   }, [items]);
-
-  const deliveryAddress =
-    addresses?.find(({ addressType }) => addressType === AddressType.home) ||
-    addresses?.[0];
 
   return (
     <main className="min-h-screen">
@@ -310,7 +393,17 @@ export default function Checkout() {
                       <span>
                         {
                           orderPriceInformations?.formattedValues
-                            .deliverFeeInBrl
+                            .deliveryFeeInBrl
+                        }
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>Taxa de serviço</span>
+                      <span>
+                        {
+                          orderPriceInformations?.formattedValues
+                            .taxPerOderInBrl
                         }
                       </span>
                     </div>
@@ -354,11 +447,20 @@ export default function Checkout() {
                   <Separator />
 
                   <Button
-                    disabled={items.length === 0}
+                    disabled={
+                      items.length === 0 ||
+                      isLoadingPayment ||
+                      deliveryAddress === null
+                    }
                     size="lg"
                     className="w-full cursor-pointer"
+                    onClick={handleMakePayment}
                   >
-                    <CreditCard className="mr-2 h-4 w-4" />
+                    {isLoadingPayment ? (
+                      <Spinner className="h-4 w-4" />
+                    ) : (
+                      <CreditCard className="h-4 w-4" />
+                    )}
                     Realizar pagamento
                   </Button>
 
