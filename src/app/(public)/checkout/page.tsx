@@ -14,6 +14,7 @@ import {
   Lock,
   MoveUpRight,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,7 +33,6 @@ import {
   PaymentMethod,
   RegisterOrderRequest,
 } from "@/api/order/register-order";
-import { toast } from "sonner";
 
 const renderStars = (rating: number) => {
   return Array.from({ length: 5 }, (_, i) => (
