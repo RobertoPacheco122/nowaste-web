@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { AUTH_COOKIE_NAME } from "./app/auth/sign-in/_hooks/use-sign-in-form";
 
-const privateRoutes = ["/addresses", "/checkout"];
+const privateRoutes = ["/addresses", "/checkout", "/orders"];
 
 /* const publicRoutes = [
   "/auth/sign-in",

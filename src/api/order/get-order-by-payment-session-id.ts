@@ -8,6 +8,7 @@ export interface GetOrderByPaymentSessionIdRequest {
 }
 
 export interface GetOrderByPaymentSessionIdResponse {
+  id: string;
   friendlyId: string;
   orderDate: string;
   orderStatus: OrderStatus;

@@ -3,11 +3,7 @@ import { AddressType } from "../address/register-address";
 import { ProductInventoryTrackingType } from "../establishment/get-all-available-establishments-for-address";
 import { OrderStatus, PaymentMethod } from "./register-order";
 
-export interface GetOrderByIdRequest {
-  id: string;
-}
-
-export interface GetOrderByIdResponse {
+export interface GetAllOrdersByPersonResponse {
   id: string;
   friendlyId: string;
   orderDate: string;
@@ -93,8 +89,10 @@ export interface GetOrderByIdResponse {
   ];
 }
 
-export const getOrderById = async ({ id }: GetOrderByIdRequest) => {
-  const { data, status } = await api.get<GetOrderByIdResponse>(`/Order/${id}`);
+export const getAllOrdersByPerson = async () => {
+  const { data, status } = await api.get<GetAllOrdersByPersonResponse[]>(
+    `/Order/get-all-by-person`
+  );
 
   return {
     data,
