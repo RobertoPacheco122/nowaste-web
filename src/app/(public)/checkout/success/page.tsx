@@ -170,7 +170,6 @@ export default function CheckoutSuccess() {
             </p>
           </div>
 
-          {/* Order Details Card */}
           <Card className="mb-6">
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -189,7 +188,6 @@ export default function CheckoutSuccess() {
               </div>
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
-              {/* Delivery Information */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="flex items-start space-x-3">
                   <div className="flex-shrink-0 w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -199,7 +197,9 @@ export default function CheckoutSuccess() {
                     <h4 className="font-semibold text-sm mb-1">
                       Estimativa de entrega
                     </h4>
-                    <p className="text-sm text-gray-600">30-60 minutos</p>
+                    <p className="text-sm text-muted-foreground">
+                      30-60 minutos
+                    </p>
                     <p className="text-xs text-gray-500 mt-1">
                       Iremos notificar você quando seu pedido estiver pronto
                     </p>
@@ -223,7 +223,6 @@ export default function CheckoutSuccess() {
 
               <Separator />
 
-              {/* Order Items */}
               <div>
                 <h4 className="font-semibold mb-4 flex items-center">
                   <Package className="h-4 w-4 mr-2 text-green-600" />
@@ -252,7 +251,7 @@ export default function CheckoutSuccess() {
                               <span className="text-2xl">🥕</span>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="font-medium text-sm truncate">
+                              <p className="font-semibold text-sm truncate">
                                 {productName}
                               </p>
                               <p className="text-xs text-gray-500">
@@ -260,10 +259,10 @@ export default function CheckoutSuccess() {
                               </p>
                             </div>
                             <div className="text-right">
-                              <p className="text-sm font-medium">
+                              <p className="text-sm font-semibold">
                                 x{itemQuantity}
                               </p>
-                              <p className="text-sm text-gray-600">
+                              <p className="text-sm text-muted-foreground">
                                 {totalPriceFormattedInBrl}
                               </p>
                             </div>
@@ -276,22 +275,21 @@ export default function CheckoutSuccess() {
 
               <Separator />
 
-              {/* Order Summary */}
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Subtotal</span>
+                  <span className="text-muted-foreground">Subtotal</span>
                   <span>
                     {orderPriceInformations?.formattedSubtotalPriceInReais}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Taxa de entrega</span>
+                  <span className="text-muted-foreground">Taxa de entrega</span>
                   <span>
                     {orderPriceInformations?.formattedDeliveryFeePriceInReais}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Taxa de serviço</span>
+                  <span className="text-muted-foreground">Taxa de serviço</span>
                   <span>
                     {orderPriceInformations?.formattedServiceTaxPriceInReais}
                   </span>
@@ -305,7 +303,7 @@ export default function CheckoutSuccess() {
                 </div>
                 {orderInformations && orderInformations.discount > 0 && (
                   <div className="bg-green-50 p-3 rounded-lg">
-                    <p className="text-sm text-green-800 font-medium text-center">
+                    <p className="text-sm text-green-800 font-semibold text-center">
                       🎉 Você economizou{" "}
                       {orderPriceInformations?.formattedDiscountPriceInReais} em
                       relação aos preços originais!
@@ -316,7 +314,6 @@ export default function CheckoutSuccess() {
             </CardContent>
           </Card>
 
-          {/* Impact Card */}
           <Card className="mb-6 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
             <CardContent className="p-6">
               <div className="flex items-start space-x-4">
@@ -354,7 +351,6 @@ export default function CheckoutSuccess() {
             </CardContent>
           </Card>
 
-          {/* Next Steps */}
           <div className="text-center space-y-4">
             <h3 className="font-semibold text-lg">O que fazer agora?</h3>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
