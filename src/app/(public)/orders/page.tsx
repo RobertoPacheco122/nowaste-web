@@ -15,6 +15,8 @@ import {
   ChevronRight,
   MapPin,
   CookingPot,
+  MessageSquare,
+  Star,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -30,9 +32,80 @@ import { Separator } from "@/components/ui/separator";
 import { OrdersIntro } from "./_components/orders-intro";
 import { useGetAllOrdersByPerson } from "@/hooks/use-get-all-orders-by-person";
 import { OrderStatus } from "@/api/order/register-order";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Controller, useForm } from "react-hook-form";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useRegisterReview } from "./_hooks/use-register-review";
+import { TReviewRating } from "@/api/review/register-review";
+import { toast } from "sonner";
+
+const reviewOrderFormSchema = z.object({
+  rating: z.number().min(1).max(5),
+  message: z.string().optional(),
+});
+
+export type ReviewOrderFormData = z.infer<typeof reviewOrderFormSchema>;
 
 export default function OrdersPage() {
+  const [reviewDialogOpen, setReviewDialogOpen] = React.useState(false);
+  const [selectedOrderId, setSelectedOrderId] = React.useState<string | null>(
+    null
+  );
+  const [hoveredRating, setHoveredRating] = React.useState(0);
+
+  const {
+    control,
+    register,
+    reset,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(reviewOrderFormSchema),
+    defaultValues: {
+      rating: 5,
+      message: "",
+    },
+  });
+
   const { data: ordersInformations } = useGetAllOrdersByPerson();
+  const { registerReviewMutation, isPending } = useRegisterReview();
+
+  const onReviewSubmit = async ({ rating, message }: ReviewOrderFormData) => {
+    try {
+      const { status } = await registerReviewMutation({
+        rating: rating as TReviewRating,
+        personComment: message || "",
+        orderId: selectedOrderId || "",
+      });
+
+      if (status !== 201) {
+        throw new Error(
+          "An error occurred while registering the review. Error code: " +
+            status
+        );
+      }
+
+      toast.success("Avaliação cadastrada com sucesso!");
+
+      reset();
+      setReviewDialogOpen(false);
+      setSelectedOrderId(null);
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message);
+      }
+    }
+  };
 
   const totalFoodImpactInKilograms = React.useMemo(() => {
     if (!ordersInformations) return 0;
@@ -136,6 +209,7 @@ export default function OrdersPage() {
                     orderItems,
                     total,
                     deliveryAddress,
+                    review,
                   }) => {
                     const statusConfig = getStatusConfig(orderStatus);
 
@@ -276,6 +350,125 @@ export default function OrdersPage() {
                               Ver detalhes
                               <ChevronRight className="ml-1 h-3 w-3" />
                             </Button>
+
+                            {orderStatus === OrderStatus.delivered && (
+                              <Dialog
+                                open={
+                                  reviewDialogOpen && selectedOrderId === id
+                                }
+                                onOpenChange={(open) => {
+                                  setReviewDialogOpen(open);
+                                  if (!open) {
+                                    reset(); // limpa o formulário ao fechar
+                                    setSelectedOrderId(null);
+                                  }
+                                }}
+                              >
+                                <DialogTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    className="flex-1 sm:flex-none cursor-pointer"
+                                    onClick={() => setSelectedOrderId(id)}
+                                    disabled={!!review}
+                                  >
+                                    <MessageSquare className="mr-1 h-3 w-3" />
+                                    Avaliar pedido
+                                  </Button>
+                                </DialogTrigger>
+
+                                <DialogContent className="sm:max-w-[500px]">
+                                  <DialogHeader>
+                                    <DialogTitle>Avaliar pedido</DialogTitle>
+                                    <DialogDescription>
+                                      Compartilhe sua experiência com o pedido #
+                                      {friendlyId}
+                                    </DialogDescription>
+                                  </DialogHeader>
+
+                                  <form
+                                    onSubmit={handleSubmit(onReviewSubmit)}
+                                    className="space-y-6 py-4"
+                                  >
+                                    {/* Campo de Rating */}
+                                    <div className="space-y-2">
+                                      <Label>Avaliação</Label>
+                                      <Controller
+                                        name="rating"
+                                        control={control}
+                                        render={({ field }) => (
+                                          <div className="flex items-center gap-2">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                              <button
+                                                key={star}
+                                                type="button"
+                                                onClick={() =>
+                                                  field.onChange(star)
+                                                }
+                                                onMouseEnter={() =>
+                                                  setHoveredRating(star)
+                                                }
+                                                onMouseLeave={() =>
+                                                  setHoveredRating(0)
+                                                }
+                                                className="transition-transform hover:scale-110  rounded"
+                                              >
+                                                <Star
+                                                  className={`h-8 w-8 ${
+                                                    star <=
+                                                    (hoveredRating ||
+                                                      field.value)
+                                                      ? "fill-yellow-400 text-yellow-400"
+                                                      : "text-gray-300"
+                                                  }`}
+                                                />
+                                              </button>
+                                            ))}
+                                            {errors.rating && (
+                                              <p className="text-xs text-red-500 mt-1">
+                                                {errors.rating.message}
+                                              </p>
+                                            )}
+                                          </div>
+                                        )}
+                                      />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                      <Label>Mensagem (opcional)</Label>
+                                      <Textarea
+                                        {...register("message")}
+                                        id="review-text"
+                                        placeholder="Nos conte sobre sua experiência com o pedido..."
+                                        rows={5}
+                                        className="resize-none"
+                                      />
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => {
+                                          reset();
+                                          setReviewDialogOpen(false);
+                                          setSelectedOrderId(null);
+                                        }}
+                                        className="flex-1 bg-transparent cursor-pointer"
+                                      >
+                                        Cancelar
+                                      </Button>
+                                      <Button
+                                        className="flex-1 cursor-pointer"
+                                        type="submit"
+                                        disabled={isPending}
+                                      >
+                                        Enviar avaliação
+                                      </Button>
+                                    </div>
+                                  </form>
+                                </DialogContent>
+                              </Dialog>
+                            )}
                           </div>
                         </CardContent>
                       </Card>

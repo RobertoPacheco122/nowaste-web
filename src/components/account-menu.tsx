@@ -4,7 +4,7 @@ import React from "react";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, MapPin, User } from "lucide-react";
+import { LogOut, MapPin, ScrollText, User } from "lucide-react";
 
 import { Button } from "./ui/button";
 import {
@@ -77,6 +77,14 @@ export function AccountMenu() {
               >
                 <Link href="/addresses">
                   <MapPin /> Endereços
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                asChild
+                className="cursor-pointer hover:bg-muted"
+              >
+                <Link href="/orders">
+                  <ScrollText /> Pedidos
                 </Link>
               </DropdownMenuItem>
             </React.Fragment>

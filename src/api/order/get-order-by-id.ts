@@ -2,6 +2,7 @@ import { api } from "@/lib/axios";
 import { AddressType } from "../address/register-address";
 import { ProductInventoryTrackingType } from "../establishment/get-all-available-establishments-for-address";
 import { OrderStatus, PaymentMethod } from "./register-order";
+import { TReviewRating } from "../review/register-review";
 
 export interface GetOrderByIdRequest {
   id: string;
@@ -91,6 +92,17 @@ export interface GetOrderByIdResponse {
       };
     }
   ];
+  review?: {
+    id: string;
+    rating: TReviewRating;
+    personComment: string | null;
+    establishmentResponse: string | null;
+    reviewDate: string;
+    responseDate: null;
+    personId: string;
+    orderId: string;
+    establishmentId: string;
+  };
 }
 
 export const getOrderById = async ({ id }: GetOrderByIdRequest) => {
