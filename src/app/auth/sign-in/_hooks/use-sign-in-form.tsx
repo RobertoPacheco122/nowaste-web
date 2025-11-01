@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import Cookies from "js-cookie";
+import { api } from "@/lib/axios";
 
 import { AuthFormData } from "../page";
 import { ApiErrorResponse, authenticate } from "@/api/auth/authenticate";
@@ -24,9 +25,9 @@ export const useSignInForm = () => {
 
       const userInformations = getLoggedUserInformations();
 
-      console.log("userInformations", userInformations);
-
       setLoggedUser(userInformations);
+
+      api.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
     },
     onError: (error) => {
       if (error.status === 401) {

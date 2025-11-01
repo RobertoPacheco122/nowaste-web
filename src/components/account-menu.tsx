@@ -4,7 +4,7 @@ import React from "react";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, User } from "lucide-react";
+import { LogOut, MapPin, ScrollText, User } from "lucide-react";
 
 import { Button } from "./ui/button";
 import {
@@ -21,6 +21,7 @@ import { removeUserAuthToken } from "@/utils/user/remove-user-auth-token";
 
 export function AccountMenu() {
   const { loggedUser, setLoggedUser } = useLoggedUser();
+
   const router = useRouter();
 
   const handleLogout = () => {
@@ -35,7 +36,12 @@ export function AccountMenu() {
       <DropdownMenuTrigger asChild>
         <Button className="cursor-pointer" variant="outline">
           <User />
-          <span>Olá, {loggedUser?.name || "visitante!"}</span>
+          <span>
+            Olá,{" "}
+            <span className="font-semibold">
+              {loggedUser?.name || "visitante"}!
+            </span>
+          </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end">
@@ -64,6 +70,22 @@ export function AccountMenu() {
             <React.Fragment>
               <DropdownMenuItem className="cursor-pointer hover:bg-muted">
                 <User /> Perfil
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                asChild
+                className="cursor-pointer hover:bg-muted"
+              >
+                <Link href="/addresses">
+                  <MapPin /> Endereços
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                asChild
+                className="cursor-pointer hover:bg-muted"
+              >
+                <Link href="/orders">
+                  <ScrollText /> Pedidos
+                </Link>
               </DropdownMenuItem>
             </React.Fragment>
           )}

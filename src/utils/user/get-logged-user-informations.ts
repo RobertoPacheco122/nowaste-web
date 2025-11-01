@@ -11,12 +11,15 @@ interface JwtLoggedUserPayloadCustom {
   role: UserRole;
   unique_name: string;
   "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/sid": string;
+  personId: string;
 }
 
 export interface LoggedUser {
   id: string;
+  personId: string;
   name: string;
   role: UserRole;
+  token: string;
 }
 
 export const getLoggedUserInformations = () => {
@@ -30,7 +33,9 @@ export const getLoggedUserInformations = () => {
     id: decodedToken[
       "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/sid"
     ],
+    personId: decodedToken.personId,
     name: decodedToken.unique_name,
     role: decodedToken.role,
+    token: authToken,
   } as LoggedUser;
 };
