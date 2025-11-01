@@ -3,7 +3,7 @@ import Link from "next/link";
 export function Footer() {
   return (
     <footer className="bg-background border-b-1">
-      <div className="flex items-center justify-between px-4 py-6">
+      <div className="container m-auto flex items-center justify-between px-4 py-6">
         <p className="text-xs text-muted-foreground">
           © 2025 Nowaste. Todos os direitos reservados.
         </p>
