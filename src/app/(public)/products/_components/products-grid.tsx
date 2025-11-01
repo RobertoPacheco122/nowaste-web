@@ -193,8 +193,13 @@ export const ProductsGrid = () => {
                     <Product.Rating>{averageRating}</Product.Rating>
                   </div>
                   <Product.SellerLocation>
-                    {exhibitionName} -{" "}
-                    {formattedEstablishmentDistanceToAddressInKilometers}km
+                    <Link
+                      className="hover:underline hover:text-green-600"
+                      href={`/establishment/${id}`}
+                    >
+                      {exhibitionName}
+                    </Link>{" "}
+                    - {formattedEstablishmentDistanceToAddressInKilometers}km
                   </Product.SellerLocation>
                 </Product.Header>
                 <Product.Content>
